@@ -29,7 +29,7 @@ class LeaveRequestsScreen extends StatelessWidget {
                       icon: const Icon(Icons.arrow_back),
                       onPressed: () => Get.back(),
                     ),                  
-                    SizedBox(width: 50),
+                    SizedBox(width: 20),
                     Text(
                       'Leave Requests',
                       style: AppTextStyles.heading2.copyWith(
@@ -87,24 +87,30 @@ class LeaveRequestsScreen extends StatelessWidget {
                   if (controller.isLoading.value) {
                     return const Center(child: CircularProgressIndicator());
                   }
-                  return TabBarView(
-                    children: [
-                      _LeaveList(
-                        items: controller.pendingLeaves,
-                        dateFormat: dateFormat,
-                        showActions: true,
-                        onApprove: (leave) =>
-                            controller.decideLeave(leave, 'approve'),
-                        onReject: (leave) =>
-                            controller.decideLeave(leave, 'reject'),
-                      ),
-                      _LeaveList(
-                        items: controller.historyLeaves,
-                        dateFormat: dateFormat,
-                        showActions: false,
-                      ),
-                    ],
-                  );
+          return TabBarView(
+            children: [
+              RefreshIndicator(
+                color: AppColors.primary,
+                onRefresh: () async {
+                  await controller.loadLeaves();
+                },
+                child: _LeaveList(
+                  items: controller.pendingLeaves,
+                  dateFormat: dateFormat,
+                  showActions: true,
+                  onApprove: (leave) =>
+                      controller.decideLeave(leave, 'approve'),
+                  onReject: (leave) =>
+                      controller.decideLeave(leave, 'reject'),
+                ),
+              ),
+              _LeaveList(
+                items: controller.historyLeaves,
+                dateFormat: dateFormat,
+                showActions: false,
+              ),
+            ],
+          );
                 }),
               ),
             ],

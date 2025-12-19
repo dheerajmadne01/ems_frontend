@@ -70,42 +70,51 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
         '${displayHour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
     final currentDate = _formatDate(now);
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Obx(() {
-          final attendanceModel = controller.attendance.value;
-          final isPunchedIn =
-              attendanceModel?.punchInTime != null &&
-              attendanceModel?.punchOutTime == null;
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(controller),
-                const SizedBox(height: 24),
-                AttendancePunchCard(
-                  currentTime: currentTime,
-                  currentDate: currentDate,
-                  location: 'Office Location',
-                  onPunchIn: () async {
-                    final type = isPunchedIn ? 'out' : 'in';
-                    await controller.punchWithLocation(type);
-                  },
-                  isPunchedIn: isPunchedIn,
-                  isPunching: controller.isPunching.value,
-                ),
-                const SizedBox(height: 24),
-                _buildStatsSection(controller),
-                const SizedBox(height: 24),
-                _buildTodayActivitySection(controller, currentTime),
-              ],
-            ),
-          );
-        }),
-      ),
-    );
+return Scaffold(
+  backgroundColor: Colors.white,
+  body: SafeArea(
+    child: Obx(() {
+      final attendanceModel = controller.attendance.value;
+      final isPunchedIn =
+          attendanceModel?.punchInTime != null &&
+          attendanceModel?.punchOutTime == null;
+
+      return RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: () async {
+          await controller.loadDashboard();
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(controller),
+              const SizedBox(height: 24),
+              AttendancePunchCard(
+                currentTime: currentTime,
+                currentDate: currentDate,
+                location: 'Office Location',
+                onPunchIn: () async {
+                  final type = isPunchedIn ? 'out' : 'in';
+                  await controller.punchWithLocation(type);
+                },
+                isPunchedIn: isPunchedIn,
+                isPunching: controller.isPunching.value,
+              ),
+              const SizedBox(height: 24),
+              _buildStatsSection(controller),
+              const SizedBox(height: 24),
+              _buildTodayActivitySection(controller, currentTime),
+            ],
+          ),
+        ),
+      );
+    }),
+  ),
+);
+
   }
 
   Widget _buildHeader(EmployeeAttendanceController controller) {

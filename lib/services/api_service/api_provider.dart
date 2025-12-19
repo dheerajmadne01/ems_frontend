@@ -21,7 +21,7 @@ class ApiProvider {
   final http.Client _client;
   final GetStorage _storage;
 
-  static const String baseUrl ='http://172.16.21.5:3000/api';
+  static const String baseUrl ='http://127.0.0.1:3000/api';
   static const String _accessTokenKey = 'auth_access_token';
   static const String _legacyTokenKey = 'auth_token';
   static const String _refreshTokenKey = 'auth_refresh_token';
