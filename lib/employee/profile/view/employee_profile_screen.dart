@@ -1,8 +1,13 @@
 import 'package:emp_management/admin/widgets/logout_button.dart';
 import 'package:emp_management/core/app_colors.dart';
 import 'package:emp_management/core/text_styles.dart';
+import 'package:emp_management/employee/profile/controller/employee_profile_controller.dart';
+import 'package:emp_management/employee/profile/model/employee_profile_model.dart';
+import 'package:emp_management/employee/profile/repo/employee_profile_repo.dart';
+import 'package:emp_management/services/api_service/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 class EmployeeProfileScreen extends StatefulWidget {
   const EmployeeProfileScreen({Key? key}) : super(key: key);
@@ -14,44 +19,85 @@ class EmployeeProfileScreen extends StatefulWidget {
 class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
   bool _notificationsEnabled = false;
 
+late final EmployeeProfileController controller;
+
+@override
+void initState() {
+  super.initState();
+
+  controller = Get.put(
+    EmployeeProfileController(
+      EmployeeRepository(
+        ApiProvider(),
+        GetStorage(),
+      ),
+    ),
+  );
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              _buildProfileHeader(),
-              const SizedBox(height: 32),
-              _buildInfoCards(),
-              const SizedBox(height: 32),
-              _buildContactInfo(),
-              const SizedBox(height: 32),
-              _buildSettings(),
-            ],
-          ),
-        ),
+        child: Obx(() {
+          if (controller.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (controller.error.isNotEmpty) {
+            return Center(child: Text(controller.error.value));
+          }
+
+          final profile = controller.profile.value;
+          if (profile == null) {
+            return const Center(child: Text('No profile data'));
+          }
+
+          return RefreshIndicator(
+            color: AppColors.primary,
+            onRefresh: () async {
+              await controller.fetchProfile();
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  _buildProfileHeader(profile),
+                  const SizedBox(height: 32),
+                  _buildInfoCards(profile),
+                  const SizedBox(height: 32),
+                  _buildContactInfo(profile),
+                  const SizedBox(height: 32),
+                  _buildSettings(),
+                ],
+              ),
+            ),
+          );
+        }),
       ),
     );
   }
 
-  Widget _buildProfileHeader() {
+  // 🔹 HEADER
+  Widget _buildProfileHeader(EmployeeProfileModel profile) {
     return Column(
       children: [
+        
         CircleAvatar(
           radius: 50,
           backgroundColor: AppColors.primary.withOpacity(0.1),
-          child: const Icon(
-            Icons.person,
-            size: 60,
-            color: AppColors.primary,
-          ),
+          backgroundImage: profile.profilePhoto != null
+              ? NetworkImage(profile.profilePhoto!)
+              : null,
+          child: profile.profilePhoto == null
+              ? const Icon(Icons.person, size: 60, color: AppColors.primary)
+              : null,
         ),
         const SizedBox(height: 16),
         Text(
-          'Sarah Johnson',
+          profile.name,
           style: AppTextStyles.heading2.copyWith(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -59,7 +105,7 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          'UX Designer',
+          profile.jobRole ?? '-',
           style: AppTextStyles.bodyLarge.copyWith(
             color: AppColors.primary,
             fontWeight: FontWeight.w500,
@@ -67,7 +113,7 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          'EMP ID: #893201',
+          'EMP ID: ${profile.empId}',
           style: AppTextStyles.bodyMedium.copyWith(
             color: AppColors.textSecondary,
           ),
@@ -76,20 +122,15 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
     );
   }
 
-  Widget _buildInfoCards() {
+
+  Widget _buildInfoCards(EmployeeProfileModel profile) {
     return Row(
       children: [
-        Expanded(
-          child: _buildInfoCard('Age', '28'),
-        ),
+        Expanded(child: _buildInfoCard('Role', profile.jobRole ?? '-')),
         const SizedBox(width: 12),
-        Expanded(
-          child: _buildInfoCard('Exp', '4 Yrs'),
-        ),
+        Expanded(child: _buildInfoCard('Dept', profile.dept ?? '-')),
         const SizedBox(width: 12),
-        Expanded(
-          child: _buildInfoCard('Dept', 'Design'),
-        ),
+        Expanded(child: _buildInfoCard('Status', 'Active' )),
       ],
     );
   }
@@ -113,8 +154,9 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
           const SizedBox(height: 8),
           Text(
             value,
+            textAlign: TextAlign.center,
             style: AppTextStyles.heading3.copyWith(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -123,7 +165,7 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
     );
   }
 
-  Widget _buildContactInfo() {
+  Widget _buildContactInfo(EmployeeProfileModel profile) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -139,28 +181,26 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
         _buildContactItem(
           Icons.email,
           'Email',
-          'sarah.j@company.com',
+          profile.email,
           AppColors.primary,
         ),
         const SizedBox(height: 16),
         _buildContactItem(
           Icons.phone,
           'Phone',
-          '+1 234 567 8900',
-          Colors.lightBlue,
-        ),
-        const SizedBox(height: 16),
-        _buildContactItem(
-          Icons.location_on,
-          'Address',
-          'New York, USA',
+          profile.phoneNumber ?? '-',
           Colors.lightBlue,
         ),
       ],
     );
   }
 
-  Widget _buildContactItem(IconData icon, String label, String value, Color iconColor) {
+  Widget _buildContactItem(
+    IconData icon,
+    String label,
+    String value,
+    Color iconColor,
+  ) {
     return Row(
       children: [
         Icon(icon, color: iconColor, size: 24),
@@ -189,6 +229,7 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
     );
   }
 
+  //  SETTINGS
   Widget _buildSettings() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,9 +250,7 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
           Switch(
             value: _notificationsEnabled,
             onChanged: (value) {
-              setState(() {
-                _notificationsEnabled = value;
-              });
+              setState(() => _notificationsEnabled = value);
             },
             activeColor: AppColors.primary,
           ),
@@ -221,24 +260,16 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
           Icons.lock,
           'Change Password',
           Colors.green,
-          const Icon(
-            Icons.arrow_forward_ios,
-            size: 16,
-            color: AppColors.textSecondary,
-          ),
+          const Icon(Icons.arrow_forward_ios, size: 16),
           onTap: () {
-            // Navigate to change password screen
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Change Password feature'),
-              ),
+              const SnackBar(content: Text('Change Password coming soon')),
             );
           },
         ),
+        const SizedBox(height: 16),
         LogoutButton(
-          onPressed: () {
-            Get.toNamed('/login');
-          },
+          onPressed: () => Get.offAllNamed('/login'),
         ),
       ],
     );
@@ -256,13 +287,12 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColors.border),
         ),
         child: Row(
           children: [
-            Icon(icon, color: iconColor, size: 24),
+            Icon(icon, color: iconColor),
             const SizedBox(width: 16),
             Expanded(
               child: Text(
@@ -279,4 +309,3 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
     );
   }
 }
-
