@@ -5,13 +5,11 @@ import 'package:flutter/material.dart';
 
 class InfoStatCard extends StatefulWidget {
   final String label;
-  final String value;
   final Color color;
 
   const InfoStatCard({
     Key? key,
     required this.label,
-    required this.value,
     required this.color,
   }) : super(key: key);
 
@@ -36,15 +34,6 @@ class _InfoStatCardState extends State<InfoStatCard> {
             widget.label,
             style: AppTextStyles.bodySmall.copyWith(
               color: AppColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            widget.value,
-            style: AppTextStyles.heading3.copyWith(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: widget.color,
             ),
           ),
         ],

@@ -8,6 +8,7 @@ import 'package:emp_management/admin/leaves/repo/leave_repository.dart';
 import 'package:emp_management/auth/controller/auth_controller.dart';
 import 'package:emp_management/auth/repo/auth_repository.dart';
 import 'package:emp_management/employee/home/controller/employee_attendance_controller.dart';
+import 'package:emp_management/employee/leave/controller/all_leaves_controller.dart';
 import 'package:emp_management/employee/leave/controller/leave_controller.dart';
 import 'package:emp_management/employee/leave/repo/employee_repository.dart'
     as employee_repos;
@@ -105,6 +106,11 @@ class DependencyManager {
 
     Get.lazyPut<LeaveController>(
       () => LeaveController(Get.find<employee_repos.EmployeeRepository>()),
+      fenix: true,
+    );
+    
+    Get.lazyPut<AllLeavesController>(
+      () => AllLeavesController(Get.find<employee_repos.EmployeeRepository>()),
       fenix: true,
     );
   }

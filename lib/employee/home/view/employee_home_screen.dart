@@ -70,51 +70,50 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
         '${displayHour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
     final currentDate = _formatDate(now);
 
-return Scaffold(
-  backgroundColor: Colors.white,
-  body: SafeArea(
-    child: Obx(() {
-      final attendanceModel = controller.attendance.value;
-      final isPunchedIn =
-          attendanceModel?.punchInTime != null &&
-          attendanceModel?.punchOutTime == null;
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Obx(() {
+          final attendanceModel = controller.attendance.value;
+          final isPunchedIn =
+              attendanceModel?.punchInTime != null &&
+              attendanceModel?.punchOutTime == null;
 
-      return RefreshIndicator(
-        color: AppColors.primary,
-        onRefresh: () async {
-          await controller.loadDashboard();
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(controller),
-              const SizedBox(height: 24),
-              AttendancePunchCard(
-                currentTime: currentTime,
-                currentDate: currentDate,
-                location: 'Office Location',
-                onPunchIn: () async {
-                  final type = isPunchedIn ? 'out' : 'in';
-                  await controller.punchWithLocation(type);
-                },
-                isPunchedIn: isPunchedIn,
-                isPunching: controller.isPunching.value,
+          return RefreshIndicator(
+            color: AppColors.primary,
+            onRefresh: () async {
+              await controller.loadDashboard();
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(controller),
+                  const SizedBox(height: 24),
+                  AttendancePunchCard(
+                    currentTime: currentTime,
+                    currentDate: currentDate,
+                    location: 'Office Location',
+                    onPunchIn: () async {
+                      final type = isPunchedIn ? 'out' : 'in';
+                      await controller.punchWithLocation(type);
+                    },
+                    isPunchedIn: isPunchedIn,
+                    isPunching: controller.isPunching.value,
+                  ),
+                  const SizedBox(height: 24),
+                  _buildStatsSection(controller),
+                  const SizedBox(height: 24),
+                  _buildTodayActivitySection(controller, currentTime),
+                ],
               ),
-              const SizedBox(height: 24),
-              _buildStatsSection(controller),
-              const SizedBox(height: 24),
-              _buildTodayActivitySection(controller, currentTime),
-            ],
-          ),
-        ),
-      );
-    }),
-  ),
-);
-
+            ),
+          );
+        }),
+      ),
+    );
   }
 
   Widget _buildHeader(EmployeeAttendanceController controller) {
@@ -143,58 +142,52 @@ return Scaffold(
             }),
           ],
         ),
-        CircleAvatar(
-          radius: 24,
-          backgroundColor: AppColors.primary.withOpacity(0.1),
-          child: const Icon(Icons.person, color: AppColors.primary, size: 28),
+        GestureDetector(
+          // onTap: () {
+          //   Get.toNamed('/employee/profile');
+          // },
+          child: CircleAvatar(
+            radius: 24,
+            backgroundColor: AppColors.primary.withOpacity(0.1),
+            child: const Icon(Icons.person, color: AppColors.primary, size: 28),
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildStatsSection(EmployeeAttendanceController controller) {
-    final hasAttendance = controller.attendance.value?.punchInTime != null;
-    final attendancePercent = hasAttendance ? 100.0 : 0.0;
-    final leave = controller.leaveStatus.value;
-    final leaveValue = leave == null ? '0' : leave.status.toUpperCase();
-    final workedDuration =
-        (controller.attendance.value?.punchInTime != null &&
-            controller.attendance.value?.punchOutTime != null)
-        ? controller.attendance.value!.punchOutTime!
-              .difference(controller.attendance.value!.punchInTime!)
-              .inHours
-        : 0;
-    return Row(
-      children: [
-        Expanded(
-          flex: 2,
-          child: AttendanceStatCard(
-            percentage: attendancePercent,
-            label: 'Attendance',
-            color: AppColors.primary,
-          ),
+Widget _buildStatsSection(EmployeeAttendanceController controller) {
+  final hasAttendance = controller.attendance.value?.punchInTime != null;
+  final attendancePercent = hasAttendance ? 100.0 : 0.0;
+
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Expanded(
+        flex: 2,
+        child: AttendanceStatCard(
+          percentage: attendancePercent,
+          label: 'Attendance',
+          color: AppColors.primary,
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          flex: 1,
+      ),
+      const SizedBox(width: 16),
+      Expanded(
+        flex: 1,
+        child: GestureDetector(
+          onTap: () {
+            Get.toNamed('/employee/all-leaves');
+          },
           child: InfoStatCard(
-            label: 'Pending Leaves',
-            value: leaveValue,
+            label: 'Leaves',
             color: Colors.orange,
           ),
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          flex: 1,
-          child: InfoStatCard(
-            label: 'Working Days',
-            value: workedDuration > 0 ? '${workedDuration}h' : '0h',
-            color: Colors.green,
-          ),
-        ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
+
 
   Widget _buildTodayActivitySection(
     EmployeeAttendanceController controller,
