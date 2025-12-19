@@ -5,7 +5,9 @@ import 'package:emp_management/services/api_service/api_provider.dart';
 import 'package:get_storage/get_storage.dart';
 
 class EmployeeRepository {
-  EmployeeRepository(this._api, this._storage);
+  EmployeeRepository()
+      : _api = ApiProvider(),
+        _storage = GetStorage();
 
   final ApiProvider _api;
   final GetStorage _storage;

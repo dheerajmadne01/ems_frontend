@@ -17,7 +17,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  final SettingsController controller = Get.put(SettingsController());
+  final SettingsController controller = Get.find<SettingsController>();
 
   @override
   Widget build(BuildContext context) {

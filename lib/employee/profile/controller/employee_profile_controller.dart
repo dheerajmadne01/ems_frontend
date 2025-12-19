@@ -3,7 +3,7 @@ import 'package:emp_management/employee/profile/repo/employee_profile_repo.dart'
 import 'package:get/get.dart';
 
 class EmployeeProfileController extends GetxController {
-  EmployeeProfileController(this._repo);
+  EmployeeProfileController() : _repo = EmployeeRepository();
 
   final EmployeeRepository _repo;
 

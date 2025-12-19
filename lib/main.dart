@@ -1,5 +1,4 @@
 
-import 'package:emp_management/core/dependency_manager.dart';
 import 'package:emp_management/routes/app_pages.dart';
 import 'package:emp_management/routes/app_routes.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +8,6 @@ import 'package:get_storage/get_storage.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
-  await DependencyManager.init();
   runApp(const MyApp());
 }
 

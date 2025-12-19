@@ -7,7 +7,9 @@ class AttendanceRepository {
   final ApiProvider api;
   final GetStorage storage;
 
-  AttendanceRepository(this.api, this.storage);
+  AttendanceRepository()
+      : api = ApiProvider(),
+        storage = GetStorage();
 
   Future<List<EmployeeModel>> fetchEmployeesWithPunches() async {
     // Fetch attendance data

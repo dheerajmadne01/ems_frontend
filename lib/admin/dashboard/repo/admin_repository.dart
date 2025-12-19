@@ -4,7 +4,7 @@ import 'package:emp_management/admin/dashboard/model/admin_model.dart';
 import 'package:emp_management/services/api_service/api_provider.dart';
 
 class AdminRepository {
-  AdminRepository(this._api);
+  AdminRepository() : _api = ApiProvider();
 
   final ApiProvider _api;
 

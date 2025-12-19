@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 class AttendanceController extends GetxController {
   final AttendanceRepository _repo;
 
-  AttendanceController(this._repo);
+  AttendanceController() : _repo = AttendanceRepository();
 
   final RxBool isLoading = false.obs;
   final RxList<EmployeeModel> employees = <EmployeeModel>[].obs;

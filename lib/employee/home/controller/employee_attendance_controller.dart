@@ -7,7 +7,9 @@ import 'package:emp_management/services/api_service/api_provider.dart';
 import 'package:get/get.dart';
 
 class EmployeeAttendanceController extends GetxController {
-  EmployeeAttendanceController(this._repository, this._locationService);
+  EmployeeAttendanceController()
+      : _repository = EmployeeRepository(),
+        _locationService = const LocationService();
 
   final EmployeeRepository _repository;
   final LocationService _locationService;

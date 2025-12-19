@@ -4,7 +4,7 @@ import 'package:emp_management/admin/leaves/model/leave_request_model.dart';
 import 'package:emp_management/services/api_service/api_provider.dart';
 
 class AdminLeaveRepository {
-  AdminLeaveRepository(this._api);
+  AdminLeaveRepository() : _api = ApiProvider();
 
   final ApiProvider _api;
 
