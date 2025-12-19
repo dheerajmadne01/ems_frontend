@@ -24,12 +24,7 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
   @override
   void initState() {
     super.initState();
-
-    controller = Get.put(
-      EmployeeProfileController(
-        EmployeeRepository(ApiProvider(), GetStorage()),
-      ),
-    );
+    controller = Get.find<EmployeeProfileController>();
   }
 
   @override

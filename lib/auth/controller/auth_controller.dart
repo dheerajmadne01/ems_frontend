@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AuthController extends GetxController {
-  AuthController(this._repository);
+  AuthController() : _repository = AuthRepository();
 
   final AuthRepository _repository;
 

@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:emp_management/routes/app_routes.dart';
 
 class LeaveController extends GetxController {
-  LeaveController(this._repository);
+  LeaveController() : _repository = EmployeeRepository();
 
   final EmployeeRepository _repository;
   final selectedLeaveType = RxnString();

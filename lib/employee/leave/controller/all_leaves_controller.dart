@@ -4,7 +4,7 @@ import 'package:emp_management/services/toast_service.dart';
 import 'package:get/get.dart';
 
 class AllLeavesController extends GetxController {
-  AllLeavesController(this._repository);
+  AllLeavesController() : _repository = EmployeeRepository();
 
   final EmployeeRepository _repository;
   final leaves = <LeaveStatusModel>[].obs;

@@ -14,7 +14,7 @@ class EmployeesScreen extends StatefulWidget {
 }
 
 class _EmployeesScreenState extends State<EmployeesScreen> {
-  final EmployeeListController controller = Get.put(EmployeeListController());
+  final EmployeeListController controller = Get.find<EmployeeListController>();
   final TextEditingController _searchController = TextEditingController();
 
   List filteredList = [];

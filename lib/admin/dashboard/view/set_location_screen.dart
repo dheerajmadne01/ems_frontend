@@ -14,8 +14,7 @@ class SetLocationScreen extends StatefulWidget {
 }
 
 class _SetLocationScreenState extends State<SetLocationScreen> {
-  final AdminDashboardController _controller =
-      Get.find<AdminDashboardController>();
+  final AdminDashboardController _controller = Get.find<AdminDashboardController>();
 
   double? _latitude;
   double? _longitude;

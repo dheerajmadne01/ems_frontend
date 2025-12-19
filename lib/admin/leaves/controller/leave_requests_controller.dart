@@ -4,7 +4,7 @@ import 'package:emp_management/services/toast_service.dart';
 import 'package:get/get.dart';
 
 class LeaveRequestsController extends GetxController {
-  LeaveRequestsController(this._repository);
+  LeaveRequestsController() : _repository = AdminLeaveRepository();
 
   final AdminLeaveRepository _repository;
 

@@ -4,7 +4,7 @@ import 'package:emp_management/services/toast_service.dart';
 import 'package:get/get.dart';
 
 class AdminDashboardController extends GetxController {
-  AdminDashboardController(this._repository);
+  AdminDashboardController() : _repository = AdminRepository();
 
   final AdminRepository _repository;
 
