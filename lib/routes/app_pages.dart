@@ -9,12 +9,14 @@ import 'package:emp_management/admin/settings/view/settings_screen.dart';
 import 'package:emp_management/admin/widgets/main_navigation.dart';
 import 'package:emp_management/auth/view/login_view.dart';
 import 'package:emp_management/employee/home/view/employee_home_screen.dart';
+import 'package:emp_management/employee/leave/view/all_leaves_screen.dart';
 import 'package:emp_management/employee/leave/view/employee_leave_screen.dart';
 import 'package:emp_management/employee/profile/view/employee_profile_screen.dart';
 import 'package:emp_management/employee/salary/view/employee_salary_screen.dart';
 import 'package:emp_management/employee/widgets/employee_navigation.dart';
-import 'package:emp_management/routes/app_routes.dart';
 import 'package:get/get.dart';
+
+import 'app_routes.dart';
 
 class AppPages {
   static final List<GetPage> pages = [
@@ -78,6 +80,10 @@ class AppPages {
     GetPage<EmployeeLeaveScreen>(
       name: AppRoutes.employeeLeave,
       page: () => const EmployeeLeaveScreen(),
+    ),
+    GetPage<AllLeavesScreen>(
+      name: AppRoutes.employeeAllLeaves,
+      page: () => const AllLeavesScreen(),
     ),
     GetPage<EmployeeSalaryScreen>(
       name: AppRoutes.employeeSalary,

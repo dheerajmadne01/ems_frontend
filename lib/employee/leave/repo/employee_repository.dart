@@ -143,6 +143,29 @@ class EmployeeRepository {
     throw ApiException(response.statusCode, message);
   }
 
+  /// Fetches all leaves for the employee
+  Future<List<LeaveStatusModel>> getAllLeaves() async {
+    final response = await _api.get('/employee/leaves');
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      final Map<String, dynamic> json =
+          jsonDecode(response.body) as Map<String, dynamic>;
+      final List<dynamic> list = (json['data'] ?? []) as List<dynamic>;
+      final leaves = list
+          .whereType<Map<String, dynamic>>()
+          .map(LeaveStatusModel.fromJson)
+          .toList();
+      return leaves;
+    }
+    String message = 'Failed to load leaves.';
+    try {
+      final decoded = jsonDecode(response.body);
+      if (decoded is Map<String, dynamic>) {
+        if (decoded['message'] is String) message = decoded['message'];
+      }
+    } catch (_) {}
+    throw ApiException(response.statusCode, message);
+  }
+
   Map<String, dynamic>? _extractAttendanceCandidate(String body) {
     try {
       final dynamic decoded = jsonDecode(body);

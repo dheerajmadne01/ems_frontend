@@ -32,7 +32,6 @@ class _AttendanceStatCardState extends State<AttendanceStatCard> {
         ),
         child: LayoutBuilder(builder: (context, constraints) {
           final double maxW = constraints.maxWidth.isFinite ? constraints.maxWidth : 100;
-          // circle size scales with available width but capped
           final double circleSize = (maxW * 0.6).clamp(40.0, 70.0);
           final double fontSize = (circleSize * 0.25).clamp(12.0, 18.0);
 

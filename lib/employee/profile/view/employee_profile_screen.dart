@@ -19,21 +19,18 @@ class EmployeeProfileScreen extends StatefulWidget {
 class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
   bool _notificationsEnabled = false;
 
-late final EmployeeProfileController controller;
+  late final EmployeeProfileController controller;
 
-@override
-void initState() {
-  super.initState();
+  @override
+  void initState() {
+    super.initState();
 
-  controller = Get.put(
-    EmployeeProfileController(
-      EmployeeRepository(
-        ApiProvider(),
-        GetStorage(),
+    controller = Get.put(
+      EmployeeProfileController(
+        EmployeeRepository(ApiProvider(), GetStorage()),
       ),
-    ),
-  );
-}
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +81,6 @@ void initState() {
   Widget _buildProfileHeader(EmployeeProfileModel profile) {
     return Column(
       children: [
-        
         CircleAvatar(
           radius: 50,
           backgroundColor: AppColors.primary.withOpacity(0.1),
@@ -122,7 +118,6 @@ void initState() {
     );
   }
 
-
   Widget _buildInfoCards(EmployeeProfileModel profile) {
     return Row(
       children: [
@@ -130,7 +125,7 @@ void initState() {
         const SizedBox(width: 12),
         Expanded(child: _buildInfoCard('Dept', profile.dept ?? '-')),
         const SizedBox(width: 12),
-        Expanded(child: _buildInfoCard('Status', 'Active' )),
+        Expanded(child: _buildInfoCard('Status', 'Active')),
       ],
     );
   }
@@ -268,9 +263,7 @@ void initState() {
           },
         ),
         const SizedBox(height: 16),
-        LogoutButton(
-          onPressed: () => Get.offAllNamed('/login'),
-        ),
+        LogoutButton(onPressed: () => Get.offAllNamed('/login')),
       ],
     );
   }
