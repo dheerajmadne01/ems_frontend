@@ -16,15 +16,19 @@ class AllLeavesController extends GetxController {
     loadLeaves();
   }
 
-  Future<void> loadLeaves() async {
+  Future<void> loadLeaves({bool showLoader = true}) async {
     try {
-      isLoading.value = true;
+      if (showLoader) {
+        isLoading.value = true;
+      }
       final result = await _repository.getAllLeaves();
       leaves.assignAll(result);
     } catch (e) {
       ToastService.showError(_getErrorMessage(e));
     } finally {
-      isLoading.value = false;
+      if (showLoader) {
+        isLoading.value = false;
+      }
     }
   }
 

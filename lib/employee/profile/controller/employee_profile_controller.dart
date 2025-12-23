@@ -17,15 +17,19 @@ class EmployeeProfileController extends GetxController {
     fetchProfile();
   }
 
-  Future<void> fetchProfile() async {
+  Future<void> fetchProfile({bool showLoader = true}) async {
     try {
-      isLoading.value = true;
+      if (showLoader) {
+        isLoading.value = true;
+      }
       error.value = '';
       profile.value = await _repo.getEmployeeProfile();
     } catch (e) {
       error.value = e.toString();
     } finally {
-      isLoading.value = false;
+      if (showLoader) {
+        isLoading.value = false;
+      }
     }
   }
 }

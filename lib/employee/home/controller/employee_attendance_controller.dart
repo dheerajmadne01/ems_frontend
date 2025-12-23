@@ -27,9 +27,11 @@ class EmployeeAttendanceController extends GetxController {
     loadDashboard();
   }
 
-  Future<void> loadDashboard() async {
+  Future<void> loadDashboard({bool showLoader = true}) async {
     try {
-      isLoading.value = true;
+      if (showLoader) {
+        isLoading.value = true;
+      }
       final result = await _repository.getTodayAttendance();
       final leave = await _repository.getLeaveStatus();
       attendance.value = result;
@@ -40,7 +42,10 @@ class EmployeeAttendanceController extends GetxController {
         'Failed to load dashboard: ${_getErrorMessage(e)}',
       );
     } finally {
-      isLoading.value = false;
+      if (showLoader) {
+        isLoading.value = false;
+      }
+      update();
     }
   }
 
@@ -53,27 +58,31 @@ class EmployeeAttendanceController extends GetxController {
       final attendanceResult = await _repository.punch(
         lat: position.latitude,
         lng: position.longitude,
-        type:
-            type, // 'in' or 'out' - will be converted to 'IN' or 'OUT' in repository
+        type: type, // 'in', 'out', 'break_start', 'break_end'
       );
 
       if (attendanceResult != null) {
         attendance.value = attendanceResult;
-        print(
-          'punchWithLocation: attendanceResult.type=${attendanceResult.type}',
-        );
-        // Debug: Print the full attendance result
-        print('punchWithLocation: full result=$attendanceResult');
       } else {
         await loadDashboard();
       }
       update();
 
-      ToastService.showSuccess(
-        type.toLowerCase() == 'out'
-            ? 'Punched out successfully'
-            : 'Punched in successfully',
-      );
+      String message;
+      switch (type.toLowerCase()) {
+        case 'out':
+          message = 'Punched out successfully';
+          break;
+        case 'break_start':
+          message = 'Break started successfully';
+          break;
+        case 'break_end':
+          message = 'Break ended successfully';
+          break;
+        default:
+          message = 'Punched in successfully';
+      }
+      ToastService.showSuccess(message);
     } catch (e) {
       ToastService.showError(_getErrorMessage(e));
     } finally {

@@ -9,7 +9,6 @@ import 'package:emp_management/admin/dashboard/view/dashboard_screen.dart';
 import 'package:emp_management/admin/dashboard/view/set_location_screen.dart';
 import 'package:emp_management/admin/leaves/controller/leave_requests_controller.dart';
 import 'package:emp_management/admin/leaves/view/leave_requests_screen.dart';
-import 'package:emp_management/admin/salary/view/salary_screen.dart';
 import 'package:emp_management/admin/settings/controller/settings_controller.dart';
 import 'package:emp_management/admin/settings/view/settings_screen.dart';
 import 'package:emp_management/admin/widgets/main_navigation.dart';
@@ -61,6 +60,10 @@ class AppPages {
           () => SettingsController(),
           fenix: true,
         );
+        Get.lazyPut<LeaveRequestsController>(
+          () => LeaveRequestsController(),
+          fenix: true,
+        );
       }),
     ),
 
@@ -94,10 +97,6 @@ class AppPages {
           fenix: true,
         );
       }),
-    ),
-    GetPage<SalaryScreen>(
-      name: AppRoutes.adminSalary,
-      page: () => const SalaryScreen(),
     ),
     GetPage<SettingsScreen>(
       name: AppRoutes.adminSettings,

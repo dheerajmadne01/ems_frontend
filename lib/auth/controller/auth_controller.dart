@@ -23,6 +23,10 @@ class AuthController extends GetxController {
         ToastService.showError('Please enter email and password');
         return;
       }
+      if (!_isValidEmail(email)) {
+        ToastService.showError('Enter a valid email address');
+        return;
+      }
 
       isLoading.value = true;
       final result = await _repository.login(email: email, password: password);
@@ -57,6 +61,11 @@ class AuthController extends GetxController {
       return message;
     }
     return error.toString();
+  }
+
+  bool _isValidEmail(String value) {
+    final pattern = RegExp(r'^[\w\.-]+@[\w\.-]+\.[A-Za-z]{2,}$');
+    return pattern.hasMatch(value);
   }
 
   @override

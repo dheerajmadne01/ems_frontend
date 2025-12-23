@@ -19,9 +19,35 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Employee Management System',
       debugShowCheckedModeBanner: false,
-      initialRoute: AppRoutes.login,
+      initialRoute: _resolveInitialRoute(),
       getPages: AppPages.pages,
+      builder: (context, child) {
+        final media = MediaQuery.of(context);
+        // Clamp text scaling to reduce overflow across devices.
+        final scaledMedia = media.copyWith(
+          textScaler: media.textScaler.clamp(
+            minScaleFactor: 0.85,
+            maxScaleFactor: 1.15,
+          ),
+        );
+        return MediaQuery(
+          data: scaledMedia,
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
     );
   }
+}
+
+String _resolveInitialRoute() {
+  final box = GetStorage();
+  final token = box.read<String>('auth_access_token') ?? box.read<String>('auth_token');
+  final role = box.read<String>('auth_role');
+
+  if (token != null && token.isNotEmpty) {
+    if (role == 'admin') return AppRoutes.adminHome;
+    if (role == 'employee') return AppRoutes.employeeHome;
+  }
+  return AppRoutes.login;
 }
 

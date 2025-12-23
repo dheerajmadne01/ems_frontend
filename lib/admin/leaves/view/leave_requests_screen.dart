@@ -6,201 +6,331 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-class LeaveRequestsScreen extends StatelessWidget {
+class LeaveRequestsScreen extends StatefulWidget {
   const LeaveRequestsScreen({Key? key}) : super(key: key);
+
+  @override
+  State<LeaveRequestsScreen> createState() => _LeaveRequestsScreenState();
+}
+
+class _LeaveRequestsScreenState extends State<LeaveRequestsScreen> {
+  String _selectedFilter = 'All Requests';
 
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<LeaveRequestsController>();
     final dateFormat = DateFormat('MMM dd');
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      onPressed: () => Get.back(),
-                    ),                  
-                    SizedBox(width: 20),
-                    Text(
-                      'Leave Requests',
-                      style: AppTextStyles.heading2.copyWith(
-                        fontWeight: FontWeight.bold,
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FB),
+      body: SafeArea(
+        child: Obx(() {
+          if (controller.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          // Calculate summary counts
+          final allLeaves = [
+            ...controller.pendingLeaves,
+            ...controller.historyLeaves,
+          ];
+          final pendingCount = controller.pendingLeaves.length;
+          final approvedCount = allLeaves
+              .where((l) => l.status.toLowerCase() == 'approved')
+              .length;
+          final rejectedCount = allLeaves
+              .where((l) => l.status.toLowerCase() == 'rejected')
+              .length;
+
+          // Filter leaves based on selected filter
+          List<LeaveRequestModel> filteredLeaves;
+          switch (_selectedFilter) {
+            case 'Pending':
+              filteredLeaves = controller.pendingLeaves;
+              break;
+            case 'Approved':
+              filteredLeaves = allLeaves
+                  .where((l) => l.status.toLowerCase() == 'approved')
+                  .toList();
+              break;
+            case 'Rejected':
+              filteredLeaves = allLeaves
+                  .where((l) => l.status.toLowerCase() == 'rejected')
+                  .toList();
+              break;
+            default:
+              filteredLeaves = allLeaves;
+          }
+
+          return RefreshIndicator(
+            onRefresh: () async => controller.loadLeaves(showLoader: false),
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: [
+                const SizedBox(height: 16),
+
+                // Header
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () => Navigator.maybePop(context),
                       ),
-                    ),
- 
-                    // IconButton(
-                    //   icon: const Icon(Icons.refresh),
-                    //   onPressed: controller.loadLeaves,
-                    // ),
-                  ],
+                      const SizedBox(width: 4),
+                      Text(
+                        'Leave Requests',
+                        style: AppTextStyles.heading2
+                            .copyWith(color: AppColors.primary),
+                      ),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.search,
+                            color: AppColors.textSecondary, size: 20),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.filter_list,
+                            color: AppColors.textSecondary, size: 20),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: TabBar(
-                  // indicator: BoxDecoration(
-                  //   color: Colors.white,
-                  //   borderRadius: BorderRadius.circular(16),
-                  // ),
-                  labelColor: AppColors.primary,
-                  // unselectedLabelColor: AppColors.textSecondary,
-                  tabs: [
-                    Obx(
-                      () => Tab(
-                        child: Text(
-                          'Pending (${controller.pendingLeaves.length})',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+
+                const SizedBox(height: 16),
+
+                // Summary Cards
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _summaryCard(
+                          label: 'Pending',
+                          value: pendingCount.toString(),
+                          color: Colors.orange,
+                          background: Colors.orange.withOpacity(0.1),
+                          icon: Icons.folder_outlined,
                         ),
                       ),
-                    ),
-                    Obx(
-                      () => Tab(
-                        child: Text(
-                          'History (${controller.historyLeaves.length})',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _summaryCard(
+                          label: 'Approved',
+                          value: approvedCount.toString(),
+                          color: Colors.green,
+                          background: Colors.green.withOpacity(0.1),
+                          icon: Icons.check_circle_outline,
                         ),
                       ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _summaryCard(
+                          label: 'Rejected',
+                          value: rejectedCount.toString(),
+                          color: Colors.red,
+                          background: Colors.red.withOpacity(0.1),
+                          icon: Icons.cancel_outlined,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Filter Tabs
+                Padding(
+                  padding: const EdgeInsets.only(left: 20.0),
+                  child: SizedBox(
+                    height: 40,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        _filterChip('All Requests'),
+                        _filterChip('Pending'),
+                        _filterChip('Approved'),
+                        _filterChip('Rejected'),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: Obx(() {
-                  if (controller.isLoading.value) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-          return TabBarView(
-            children: [
-              RefreshIndicator(
-                color: AppColors.primary,
-                onRefresh: () async {
-                  await controller.loadLeaves();
-                },
-                child: _LeaveList(
-                  items: controller.pendingLeaves,
-                  dateFormat: dateFormat,
-                  showActions: true,
-                  onApprove: (leave) =>
-                      controller.decideLeave(leave, 'approve'),
-                  onReject: (leave) =>
-                      controller.decideLeave(leave, 'reject'),
+
+                const SizedBox(height: 16),
+
+                // Leave Requests List
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Column(
+                    children: [
+                      if (filteredLeaves.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(40.0),
+                          child: Text(
+                            'No leave requests found',
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        )
+                      else
+                        for (final leave in filteredLeaves)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: _leaveRequestCard(
+                              leave: leave,
+                              dateFormat: dateFormat,
+                              onApprove: leave.isPending
+                                  ? () => controller.decideLeave(leave, 'approve')
+                                  : null,
+                              onReject: leave.isPending
+                                  ? () => controller.decideLeave(leave, 'reject')
+                                  : null,
+                            ),
+                          ),
+                    ],
+                  ),
                 ),
-              ),
-              _LeaveList(
-                items: controller.historyLeaves,
-                dateFormat: dateFormat,
-                showActions: false,
-              ),
-            ],
+
+                const SizedBox(height: 24),
+              ],
+            ),
           );
-                }),
-              ),
+        }),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // TODO: Navigate to add leave request screen
+        },
+        backgroundColor: AppColors.primary,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+    );
+  }
+
+  Widget _summaryCard({
+    required String label,
+    required String value,
+    required Color color,
+    required Color background,
+    required IconData icon,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 20),
+              const Spacer(),
             ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: AppTextStyles.heading3.copyWith(
+              color: color,
+              fontWeight: FontWeight.w700,
+              fontSize: 24,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _filterChip(String label) {
+    final bool isSelected = _selectedFilter == label;
+    return Padding(
+      padding: const EdgeInsets.only(right: 10.0),
+      child: ChoiceChip(
+        label: Text(label),
+        selected: isSelected,
+        onSelected: (_) {
+          setState(() {
+            _selectedFilter = label;
+          });
+        },
+        selectedColor: AppColors.primary.withOpacity(0.12),
+        labelStyle: AppTextStyles.bodySmall.copyWith(
+          color: isSelected ? AppColors.primary : AppColors.textSecondary,
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+        ),
+        backgroundColor: Colors.grey.shade100,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: isSelected ? AppColors.primary : Colors.transparent,
           ),
         ),
       ),
     );
   }
-}
 
-class _LeaveList extends StatelessWidget {
-  const _LeaveList({
-    required this.items,
-    required this.dateFormat,
-    required this.showActions,
-    this.onApprove,
-    this.onReject,
-  });
-
-  final List<LeaveRequestModel> items;
-  final DateFormat dateFormat;
-  final bool showActions;
-  final ValueChanged<LeaveRequestModel>? onApprove;
-  final ValueChanged<LeaveRequestModel>? onReject;
-
-  @override
-  Widget build(BuildContext context) {
-    if (items.isEmpty) {
-      return Center(
-        child: Text(
-          showActions
-              ? 'No pending leave requests'
-              : 'No leave history available',
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
-          ),
-        ),
-      );
-    }
-
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      itemBuilder: (_, index) {
-        final leave = items[index];
-        return _LeaveCard(
-          leave: leave,
-          dateFormat: dateFormat,
-          showActions: showActions,
-          onApprove: onApprove,
-          onReject: onReject,
-        );
-      },
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemCount: items.length,
-    );
-  }
-}
-
-class _LeaveCard extends StatelessWidget {
-  const _LeaveCard({
-    required this.leave,
-    required this.dateFormat,
-    required this.showActions,
-    this.onApprove,
-    this.onReject,
-  });
-
-  final LeaveRequestModel leave;
-  final DateFormat dateFormat;
-  final bool showActions;
-  final ValueChanged<LeaveRequestModel>? onApprove;
-  final ValueChanged<LeaveRequestModel>? onReject;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _leaveRequestCard({
+    required LeaveRequestModel leave,
+    required DateFormat dateFormat,
+    VoidCallback? onApprove,
+    VoidCallback? onReject,
+  }) {
     final avatarInitial =
         leave.employeeName.isNotEmpty ? leave.employeeName[0] : '?';
-    final period =
-        '${dateFormat.format(leave.startDate)} - ${dateFormat.format(leave.endDate)}';
+    final isPending = leave.isPending;
+    final isApproved = leave.status.toLowerCase() == 'approved';
+
+    // Format date range
+    String dateRange;
+    if (leave.startDate.year == leave.endDate.year &&
+        leave.startDate.month == leave.endDate.month &&
+        leave.startDate.day == leave.endDate.day) {
+      dateRange = '${dateFormat.format(leave.startDate)} (1 Day)';
+    } else {
+      final days = (leave.days ?? leave.endDate.difference(leave.startDate).inDays + 1).toInt();
+      dateRange = '${dateFormat.format(leave.startDate)} - ${dateFormat.format(leave.endDate)} ($days Days)';
+    }
+
+    Color statusColor;
+    if (isPending) {
+      statusColor = Colors.orange;
+    } else if (isApproved) {
+      statusColor = Colors.green;
+    } else {
+      statusColor = Colors.red;
+    }
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 3),
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -209,22 +339,38 @@ class _LeaveCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundImage: (leave.profilePhoto?.isNotEmpty ?? false)
-                    ? NetworkImage(leave.profilePhoto!)
-                    : null,
-                backgroundColor: AppColors.primary.withOpacity(0.1),
-                child: (leave.profilePhoto?.isNotEmpty ?? false)
-                    ? null
-                    : Text(
-                        avatarInitial,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
+              Stack(
+                children: [
+                  CircleAvatar(
+                    radius: 24,
+                    backgroundImage: (leave.profilePhoto?.isNotEmpty ?? false)
+                        ? NetworkImage(leave.profilePhoto!)
+                        : null,
+                    backgroundColor: Colors.grey.shade300,
+                    child: (leave.profilePhoto?.isNotEmpty ?? false)
+                        ? null
+                        : Text(
+                            avatarInitial,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                  ),
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      width: 14,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
                       ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -239,7 +385,7 @@ class _LeaveCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      leave.leaveType,
+                      leave.employeeRole,
                       style: AppTextStyles.bodySmall.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -249,98 +395,94 @@ class _LeaveCard extends StatelessWidget {
               ),
               Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: statusColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  leave.durationLabel,
+                  leave.status,
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.primary,
+                    color: statusColor,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.03),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.calendar_today,
-                      size: 16,
-                      color: AppColors.textSecondary,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      period,
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-                if (leave.reason != null && leave.reason!.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    '"${leave.reason!}"',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      fontStyle: FontStyle.italic,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ],
+          const SizedBox(height: 14),
+          Text(
+            leave.leaveType,
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontWeight: FontWeight.w600,
             ),
           ),
-          if (!showActions) ...[
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                _StatusChip(status: leave.status),
-              ],
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Icon(Icons.calendar_today, size: 14, color: AppColors.textSecondary),
+              const SizedBox(width: 6),
+              Text(
+                dateRange,
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+          if (leave.reason != null && leave.reason!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              leave.reason!,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
           ],
-          if (showActions) ...[
-            const SizedBox(height: 16),
+          if (isPending && onApprove != null && onReject != null) ...[
+            const SizedBox(height: 14),
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: onReject == null
-                        ? null
-                        : () => onReject!(leave),
+                    onPressed: onReject,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.red,
                       side: const BorderSide(color: Colors.red),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                    child: const Text('Reject'),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.close, size: 18),
+                        SizedBox(width: 4),
+                        Text('Reject'),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: onApprove == null
-                        ? null
-                        : () => onApprove!(leave),
+                    onPressed: onApprove,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      backgroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                    child: const Text('Approve'),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.check, size: 18, color: Colors.white),
+                        SizedBox(width: 4),
+                        Text('Approve', style: TextStyle(color: Colors.white)),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -351,43 +493,3 @@ class _LeaveCard extends StatelessWidget {
     );
   }
 }
-
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.status});
-
-  final String status;
-
-  @override
-  Widget build(BuildContext context) {
-    Color bg;
-    Color text;
-    switch (status.toLowerCase()) {
-      case 'approved':
-        bg = Colors.green.withOpacity(0.1);
-        text = Colors.green;
-        break;
-      case 'rejected':
-        bg = Colors.red.withOpacity(0.1);
-        text = Colors.red;
-        break;
-      default:
-        bg = AppColors.primary.withOpacity(0.1);
-        text = AppColors.primary;
-    }
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        status.toUpperCase(),
-        style: AppTextStyles.bodySmall.copyWith(
-          color: text,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-}
-

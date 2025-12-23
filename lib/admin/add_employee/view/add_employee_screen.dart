@@ -6,6 +6,7 @@ import 'package:emp_management/admin/widgets/upload_photo_widget.dart';
 import 'package:emp_management/core/app_colors.dart';
 import 'package:emp_management/core/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 class AddEmployeeScreen extends StatefulWidget {
@@ -83,8 +84,10 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
           label: 'Full Name',
           controller: controller.fullName,
           hintText: 'e.g. Sarah Johnson',
-          validator: (value) =>
-              value == null || value.isEmpty ? 'Please enter full name' : null,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z ]")),
+          ],
+          validator: _validateName,
         ),
         const SizedBox(height: 20),
 
@@ -132,11 +135,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
           controller: controller.email,
           hintText: 'name@company.com',
           keyboardType: TextInputType.emailAddress,
-          validator: (value) {
-            if (value == null || value.isEmpty) return 'Please enter email';
-            if (!value.contains('@')) return 'Invalid email';
-            return null;
-          },
+          validator: _validateEmail,
         ),
         const SizedBox(height: 20),
 
@@ -145,6 +144,11 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
           controller: controller.phone,
           hintText: '+1 234 567 890',
           keyboardType: TextInputType.phone,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(10),
+          ],
+          validator: _validatePhone,
         ),
         const SizedBox(height: 20),
 
@@ -153,6 +157,9 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
           controller: controller.salary,
           hintText: '5000',
           keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+          ],
           validator: (value) =>
               value == null || value.isEmpty ? 'Please enter salary' : null,
         ),
@@ -171,5 +178,40 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         );
       },
     );
+  }
+
+  String? _validateName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Please enter full name';
+    }
+    if (!RegExp(r'^[A-Za-z ]+$').hasMatch(value.trim())) {
+      return 'Name can contain letters and spaces only';
+    }
+    return null;
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Please enter email';
+    }
+    final email = value.trim();
+    final pattern = RegExp(r'^[\w\.-]+@[\w\.-]+\.[A-Za-z]{2,}$');
+    if (!pattern.hasMatch(email)) {
+      return 'Enter a valid email';
+    }
+    return null;
+  }
+
+  String? _validatePhone(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Please enter phone number';
+    }
+    if (value.trim().length != 10) {
+      return 'Phone must be 10 digits';
+    }
+    if (!RegExp(r'^\d{10}$').hasMatch(value.trim())) {
+      return 'Digits only';
+    }
+    return null;
   }
 }

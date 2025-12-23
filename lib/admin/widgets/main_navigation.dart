@@ -1,7 +1,7 @@
 import 'package:emp_management/admin/all_emp/view/employees_screen.dart';
 import 'package:emp_management/admin/attendence/view/attendance_screen.dart';
 import 'package:emp_management/admin/dashboard/view/dashboard_screen.dart';
-import 'package:emp_management/admin/salary/view/salary_screen.dart';
+import 'package:emp_management/admin/leaves/view/leave_requests_screen.dart';
 import 'package:emp_management/admin/settings/view/settings_screen.dart';
 import 'package:emp_management/core/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +21,7 @@ class _MainNavigationState extends State<MainNavigation> {
      DashboardScreen(),
      EmployeesScreen(),
     AttendanceScreen(),
-    SalaryScreen(),
+    LeaveRequestsScreen(),
     SettingsScreen(),
   ];
 
@@ -86,9 +86,9 @@ class _MainNavigationState extends State<MainNavigation> {
               label: 'Attend',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.attach_money_outlined),
-              activeIcon: Icon(Icons.attach_money),
-              label: 'Salary',
+              icon: Icon(Icons.flight_takeoff_outlined),
+              activeIcon: Icon(Icons.flight_takeoff),
+              label: 'Leave',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.settings_outlined),

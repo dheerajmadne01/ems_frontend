@@ -4,7 +4,6 @@ import 'package:emp_management/admin/widgets/profile_card.dart';
 import 'package:emp_management/admin/widgets/screen_header.dart';
 import 'package:emp_management/admin/widgets/section_title.dart';
 import 'package:emp_management/admin/widgets/settings_item.dart';
-import 'package:emp_management/auth/controller/auth_controller.dart';
 import 'package:emp_management/core/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

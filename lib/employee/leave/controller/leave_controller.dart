@@ -61,6 +61,11 @@ class LeaveController extends GetxController {
   String? get endDateLabel =>
       endDate.value != null ? _formatDate(endDate.value!) : null;
 
+  int get calculatedDuration {
+    if (startDate.value == null || endDate.value == null) return 0;
+    return endDate.value!.difference(startDate.value!).inDays + 1;
+  }
+
   Future<void> submitLeave({required String reason}) async {
     try {
       if (selectedLeaveType.value == null ||

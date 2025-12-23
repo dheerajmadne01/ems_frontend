@@ -3,6 +3,7 @@ import 'package:emp_management/auth/widgets/custom_text_field.dart';
 import 'package:emp_management/core/app_colors.dart';
 import 'package:emp_management/core/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -17,148 +18,208 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      body: SingleChildScrollView(
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height,
-          child: Stack(
-            children: [
-              /// 🔷 Top Gradient
-              Container(
-                height: screenHeight * 0.38,
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Color.fromARGB(255, 48, 137, 225),
-                      Color.fromARGB(255, 46, 128, 251),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(30),
-                    bottomRight: Radius.circular(30),
-                  ),
-                ),
-                child: SafeArea(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.business, color: Colors.white, size: 60),
-                      SizedBox(height: 16),
-                      Text(
-                        "Welcome Back",
-                        style: TextStyle(
-                          fontSize: 24,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        "Sign in to continue",
-                        style: TextStyle(fontSize: 16, color: Colors.white70),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+      backgroundColor: const Color(0xFFF2F4F7),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final width = MediaQuery.of(context).size.width;
+            final padding = width > 520 ? 32.0 : 20.0;
 
-              Positioned(
-                top: screenHeight * 0.32,
-                left: 20,
-                right: 20,
-                child: Container(
-                  height: screenHeight * 0.45,
-                  padding: const EdgeInsets.all(25),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(22),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 15,
-                        offset: Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 25),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Email Address', style: AppTextStyles.inputLabel),
-                        const SizedBox(height: 8),
-                        CustomTextField(
-                          hintText: 'name@company.com',
-                          icon: Icons.email_outlined,
-                          controller: controller.emailController,
+            return SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: padding, vertical: 24),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 440),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(26),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 18,
+                          offset: const Offset(0, 12),
                         ),
-                        const SizedBox(height: 25),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Password', style: AppTextStyles.inputLabel),
-                            TextButton(
-                              onPressed: () {},
-                              child: Text(
-                                'Forgot Password?',
-                                style: AppTextStyles.link,
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Hero
+                        ClipRRect(
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
+                          child: Container(
+                            height: 180,
+                            width: double.infinity,
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
                               ),
                             ),
-                          ],
-                        ),
-
-                        CustomTextField(
-                          hintText: '********',
-                          icon: Icons.lock_outline,
-                          isPassword: true,
-                          controller: controller.passwordController,
-                        ),
-                        const SizedBox(height: 35),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: Obx(
-                            () => ElevatedButton(
-                              onPressed: controller.isLoading.value
-                                  ? null
-                                  : controller.login,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color.fromARGB(
-                                  255,
-                                  44,
-                                  144,
-                                  244,
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                Positioned(
+                                  right: -10,
+                                  bottom: -30,
+                                  child: Icon(
+                                    Icons.layers_rounded,
+                                    size: 200,
+                                    color: Colors.white.withOpacity(0.08),
+                                  ),
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                              ),
-                              child: controller.isLoading.value
-                                  ? const SizedBox(
-                                      width: 22,
-                                      height: 22,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation(
-                                          Colors.white,
+                                Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(14),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.15),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.business_center_outlined,
+                                          color: Colors.white,
+                                          size: 44,
                                         ),
                                       ),
-                                    )
-                                  : const Text(
-                                      "Sign In",
-                                      style: TextStyle(
-                                        color: Colors.white,
+                                      const SizedBox(height: 14),
+                                      const Text(
+                                        'Employee Portal',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      const Text(
+                                        'Access your workspace securely.',
+                                        style: TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 26),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Welcome Back',
+                                style: AppTextStyles.heading2.copyWith(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'Login with your work credentials to continue.',
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                              const SizedBox(height: 22),
+                              Text('Work Email', style: AppTextStyles.inputLabel),
+                              const SizedBox(height: 8),
+                              CustomTextField(
+                                hintText: 'name@company.com',
+                                icon: Icons.alternate_email,
+                                controller: controller.emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                    RegExp(r'[a-zA-Z0-9@._+-]'),
+                                  ),
+                                  LengthLimitingTextInputFormatter(50),
+                                ],
+                              ),
+                              const SizedBox(height: 18),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Password', style: AppTextStyles.inputLabel),
+                                  TextButton(
+                                    onPressed: () {},
+                                    child: Text(
+                                      'Forgot Password?',
+                                      style: AppTextStyles.link,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              CustomTextField(
+                                hintText: '••••••••',
+                                icon: Icons.lock_outline,
+                                isPassword: true,
+                                controller: controller.passwordController,
+                              ),
+                              const SizedBox(height: 24),
+                              SizedBox(
+                                width: double.infinity,
+                                height: 52,
+                                child: Obx(
+                                  () => ElevatedButton.icon(
+                                    onPressed: controller.isLoading.value
+                                        ? null
+                                        : controller.login,
+                                    icon: controller.isLoading.value
+                                        ? const SizedBox(
+                                            width: 18,
+                                            height: 18,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor: AlwaysStoppedAnimation(Colors.white),
+                                            ),
+                                          )
+                                        : const Icon(Icons.login_rounded, size: 18),
+                                    label: Text(
+                                      controller.isLoading.value ? 'Signing In...' : 'Secure Login',
+                                      style: const TextStyle(
                                         fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.primary,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Center(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.verified_user_outlined,
+                                        size: 16, color: AppColors.textSecondary),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'End-to-end encrypted',
+                                      style: AppTextStyles.bodySmall.copyWith(
+                                        color: AppColors.textSecondary,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
-                            ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -166,32 +227,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-
-              /// ⚫ Bottom text
-              Positioned(
-                bottom: 30,
-                left: 20,
-                right: 20,
-                child: Center(
-                  child: Text.rich(
-                    TextSpan(
-                      text: 'By signing in, you agree to our ',
-                      style: TextStyle(color: Colors.grey[600], fontSize: 13),
-                      children: const [
-                        TextSpan(
-                          text: 'Terms & Privacy Policy',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

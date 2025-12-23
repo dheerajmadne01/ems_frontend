@@ -11,7 +11,9 @@ class AttendanceController extends GetxController {
   AttendanceController() : _repo = AttendanceRepository();
 
   final RxBool isLoading = false.obs;
+  final RxBool isRefreshing = false.obs;
   final RxList<EmployeeModel> employees = <EmployeeModel>[].obs;
+  final Rx<DateTime> selectedDate = DateTime.now().obs;
   String selectedDateLabel = ''; // optional
 
   @override
@@ -20,15 +22,24 @@ class AttendanceController extends GetxController {
     loadAttendance();
   }
 
-  Future<void> loadAttendance() async {
+  Future<void> loadAttendance({DateTime? date, bool showLoader = true}) async {
     try {
-      isLoading.value = true;
-      final data = await _repo.fetchEmployeesWithPunches();
+      if (showLoader) {
+        isLoading.value = true;
+      } else {
+        isRefreshing.value = true;
+      }
+      final effectiveDate = date ?? selectedDate.value;
+      selectedDate.value = effectiveDate;
+
+      final data =
+          await _repo.fetchEmployeesWithPunches(date: effectiveDate);
       employees.assignAll(data);
     } catch (e) {
       ToastService.showError(_getErrorMessage(e));
     } finally {
       isLoading.value = false;
+      isRefreshing.value = false;
     }
   }
 
@@ -46,8 +57,8 @@ class AttendanceController extends GetxController {
   // Helpers ----------------------------------------------------------
 
   DateTime _todayLocalDateOnly() {
-    final now = DateTime.now();
-    return DateTime(now.year, now.month, now.day);
+    final d = selectedDate.value;
+    return DateTime(d.year, d.month, d.day);
   }
 
   bool _isSameLocalDate(DateTime d, DateTime other) {

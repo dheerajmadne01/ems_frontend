@@ -27,7 +27,7 @@ class EmployeeRepository {
   Future<AttendanceRecordModel?> punch({
     required double lat,
     required double lng,
-    required String type, // 'IN' or 'OUT'
+    required String type, // 'IN', 'OUT', 'BREAK_START', 'BREAK_END'
   }) async {
     final employeeId = _ensureEmployeeId();
     final punchType = type.toUpperCase();

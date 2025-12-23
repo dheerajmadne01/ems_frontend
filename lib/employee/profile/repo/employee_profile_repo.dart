@@ -2,23 +2,12 @@ import 'dart:convert';
 
 import 'package:emp_management/employee/profile/model/employee_profile_model.dart';
 import 'package:emp_management/services/api_service/api_provider.dart';
-import 'package:get_storage/get_storage.dart';
 
 class EmployeeRepository {
   EmployeeRepository()
-      : _api = ApiProvider(),
-        _storage = GetStorage();
+      : _api = ApiProvider();
 
   final ApiProvider _api;
-  final GetStorage _storage;
-
-  String _ensureEmployeeId() {
-    final employeeId = _storage.read<String>('auth_id');
-    if (employeeId == null || employeeId.isEmpty) {
-      throw Exception('Employee ID not found. Please login again.');
-    }
-    return employeeId;
-  }
 
   Future<EmployeeProfileModel> getEmployeeProfile() async {
     final response = await _api.get('/employee/profile');

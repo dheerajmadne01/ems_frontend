@@ -18,9 +18,11 @@ class LeaveRequestsController extends GetxController {
     loadLeaves();
   }
 
-  Future<void> loadLeaves() async {
+  Future<void> loadLeaves({bool showLoader = true}) async {
     try {
-      isLoading.value = true;
+      if (showLoader) {
+        isLoading.value = true;
+      }
       final leaves = await _repository.fetchLeaveRequests();
       pendingLeaves.assignAll(
         leaves.where((leave) => leave.isPending).toList(),
@@ -31,7 +33,9 @@ class LeaveRequestsController extends GetxController {
     } catch (e) {
       ToastService.showError(_getErrorMessage(e));
     } finally {
-      isLoading.value = false;
+      if (showLoader) {
+        isLoading.value = false;
+      }
     }
   }
 
@@ -41,7 +45,7 @@ class LeaveRequestsController extends GetxController {
       ToastService.showSuccess(
         action == 'approve' ? 'Leave approved' : 'Leave rejected',
       );
-      await loadLeaves();
+      await loadLeaves(showLoader: false);
     } catch (e) {
       ToastService.showError(_getErrorMessage(e));
     }

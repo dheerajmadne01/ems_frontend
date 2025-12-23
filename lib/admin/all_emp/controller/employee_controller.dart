@@ -9,15 +9,19 @@ class EmployeeListController extends GetxController {
   RxBool isLoading = false.obs;
   RxList<EmployeeModel> employees = <EmployeeModel>[].obs;
 
-  Future<void> loadEmployees() async {
+  Future<void> loadEmployees({bool showLoader = true}) async {
     try {
-      isLoading.value = true;
+      if (showLoader) {
+        isLoading.value = true;
+      }
       final result = await repo.fetchEmployees();
       employees.assignAll(result);
     } catch (e) {
       ToastService.showError(_getErrorMessage(e));
     } finally {
-      isLoading.value = false;
+      if (showLoader) {
+        isLoading.value = false;
+      }
     }
   }
 

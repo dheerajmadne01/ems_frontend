@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CustomTextField extends StatelessWidget {
   final String hintText;
@@ -9,6 +10,8 @@ class CustomTextField extends StatelessWidget {
   final void Function(String)? onChanged;
   final TextInputType? keyboardType;
   final bool obscureText;
+  final List<TextInputFormatter>? inputFormatters;
+  final int? maxLength;
 
   const CustomTextField({
     Key? key,
@@ -20,6 +23,8 @@ class CustomTextField extends StatelessWidget {
     this.onChanged,
     this.keyboardType,
     this.obscureText = false,
+    this.inputFormatters,
+    this.maxLength,
   }) : super(key: key);
 
   @override
@@ -35,6 +40,8 @@ class CustomTextField extends StatelessWidget {
         controller: controller,
         obscureText: isPassword || obscureText,
         style: TextStyle(fontSize: 15, color: Colors.grey[800]),
+        inputFormatters: inputFormatters,
+        maxLength: maxLength,
         decoration: InputDecoration(
           prefixIcon: Icon(icon, color: Colors.grey[600], size: 22),
           hintText: hintText,
@@ -42,6 +49,7 @@ class CustomTextField extends StatelessWidget {
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 10.0),
           errorStyle: const TextStyle(fontSize: 12),
+          counterText: '',
         ),
         validator: validator,
         onChanged: onChanged,

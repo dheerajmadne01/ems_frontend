@@ -9,15 +9,19 @@ class ActionButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final Color? backgroundColor;
   final Color? iconColor;
+  final Color? textColor;
+  final Color? borderColor;
 
   const ActionButton({
-    Key? key,
+    super.key,
     required this.label,
     required this.icon,
     this.onPressed,
     this.backgroundColor,
     this.iconColor,
-  }) : super(key: key);
+    this.textColor,
+    this.borderColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +32,7 @@ class ActionButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: backgroundColor ?? Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: borderColor ?? Colors.transparent),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -43,6 +47,7 @@ class ActionButton extends StatelessWidget {
               label,
               style: AppTextStyles.bodyMedium.copyWith(
                 fontWeight: FontWeight.w500,
+                color: textColor ?? AppColors.textPrimary,
               ),
             ),
           ],

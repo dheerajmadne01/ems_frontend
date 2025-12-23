@@ -1,6 +1,7 @@
 import 'package:emp_management/core/app_colors.dart';
 import 'package:emp_management/core/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CustomTextField extends StatelessWidget {
   final String label;
@@ -11,6 +12,8 @@ class CustomTextField extends StatelessWidget {
   final bool enabled;
   final String? Function(String?)? validator;
   final int? maxLines;
+  final List<TextInputFormatter>? inputFormatters;
+  final int? maxLength;
 
   const CustomTextField({
     Key? key,
@@ -22,6 +25,8 @@ class CustomTextField extends StatelessWidget {
     this.enabled = true,
     this.validator,
     this.maxLines,
+    this.inputFormatters,
+    this.maxLength,
   }) : super(key: key);
 
   @override
@@ -43,6 +48,8 @@ class CustomTextField extends StatelessWidget {
           keyboardType: keyboardType,
           validator: validator,
           maxLines: maxLines ?? 1,
+          inputFormatters: inputFormatters,
+          maxLength: maxLength,
           decoration: InputDecoration(
             hintText: hintText,
             hintStyle: AppTextStyles.bodyMedium.copyWith(
@@ -71,6 +78,7 @@ class CustomTextField extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: AppColors.border),
             ),
+            counterText: '',
           ),
           style: AppTextStyles.bodyMedium.copyWith(
             color: AppColors.textPrimary,
